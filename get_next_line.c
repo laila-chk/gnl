@@ -6,7 +6,7 @@
 /*   By: lchokri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/10 15:40:19 by lchokri           #+#    #+#             */
-/*   Updated: 2021/12/12 04:45:52 by lchokri          ###   ########.fr       */
+/*   Updated: 2021/12/14 17:34:13 by lchokri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,44 +15,69 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/uio.h>
+#include <stdlib.h>
 
-
-/* just increment the damned string and re calculate X after passing the whole buf to str */
-/* there will be a str that points to buf, static, it stops by \n */
-void	ft_putstr(char *s)
-{
-	if (s == NULL)
-		return ;
-	while (*s)
-	{
-		write (1, s, 1);
-		s++;
-	}
-}
-
+#define BUFFER_SIZE 10 
 //#ifdef BUFFER_SIZE
-#define BUFFER_SIZE 1000
-static size_t sz = BUFFER_SIZE; 
-char *minitest(int fd)
+
+char	*ft_strdup(const char *s1)
 {
-	char buf[BUFFER_SIZE + 1];
-	int ret ;
-	while ((ret = read(fd, buf, BUFFER_SIZE)) > 0)	
+	int		i;
+	char	*p;
+
+	i = 1;
+	if (s1[i] != '\0')
 	{
-		read(fd, buf, BUFFER_SIZE);
-		sz++;
+		while (s1[i])
+			i++;
+		p = malloc(sizeof(char) * i + 1);
+		if (p == NULL)
+			return (NULL);
+		i = 0;
+		while (s1[i] != '\0')
+		{
+			p[i] = s1[i];
+			i++;
+		}
+		p[i] = '\0';
 	}
-	buf[sz] = '\0';
-	printf("%d\n", ret);
-	printf("%zu\n", sz);
-	printf("%d\n", BUFFER_SIZE);
-	printf("%s", buf);
-	return (buf);
+	else
+	{
+		p = malloc(sizeof(char));
+		p[i] = '\0';
+	}
+	return ((char *)p);
 }
-/*i'm kinda sleepy i just can't now, the idea is adding a static str that points into buf, it is easy to print from it until we face a \n and increment it using ++ , since it is static i fairly believe i ain't gonna find a prb with moving to the next line kay bye now */
-//#endif
+
+char *get_next_line(int fd)
+{
+	char *buf;
+	char *toret;
+	static char	*saved;
+	int	ret;
+	int	i;
+
+	buf = (char)malloc((BUFFER_SIZE + 1) * sizeof(char));
+	i = 0;
+	ret = read(fd, buf, BUFFER_SIZE);
+	buf[ret] = '\0';
+	while (buf[i] != '\0')
+	{
+		saved[i] = buf[i];
+		i++;
+	}
+	saved[i] = '\0';
+	while (strchr(saved) == 0 && ret != 0)
+	{
+		free (buf);
+		read(fd, buf, BUFFER_SIZE);
+		saved = ft_strjoin(saved, buf);
+	}
+}
+
 int main()
 {
 	int fd = open("random.txt", O_RDONLY);
-	minitest(fd);
+	get_next_line(fd);
+	//	printf("**%s**",get_next_line(fd));
 }
