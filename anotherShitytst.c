@@ -13,18 +13,18 @@ char	*ft_strdup(const char *s1, char X)
 	i = 1;
 	if (s1[i] != '\0')
 	{
-		while (s1[i] && s1[i] != 'X')
+		while (s1[i] && s1[i] != X)
 			i++;
 		p = malloc(sizeof(char) * i + 1);
 		if (p == NULL)
 			return (NULL);
 		i = 0;
-		while (s1[i] != '\0' && s1[i] != 'X')
+		while (s1[i] != '\0' && s1[i - 1] != X)
 		{
 			p[i] = s1[i];
 			i++;
 		}
-		p[i] = '\0';
+			p[i] = '\0';
 	}
 	else
 	{
@@ -35,6 +35,6 @@ char	*ft_strdup(const char *s1, char X)
 }
 int main()
 {
-	const char str[] = "shut up and $take my money";
-	printf("%s",ft_strdup(str, '$'));
+	const char str[] = "shut up and $take\n my money";
+	printf("%s",ft_strdup(str, '\n'));
 }
