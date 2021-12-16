@@ -6,7 +6,7 @@
 /*   By: lchokri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/10 15:40:19 by lchokri           #+#    #+#             */
-/*   Updated: 2021/12/15 14:47:23 by lchokri          ###   ########.fr       */
+/*   Updated: 2021/12/16 19:33:53 by lchokri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,24 @@
 #include <sys/types.h>
 #include <sys/uio.h>
 #include <stdlib.h>
+#include <string.h>
+//#define BUFFER_SIZE 10 
+#ifdef BUFFER_SIZE
 
-#define BUFFER_SIZE 10 
-//#ifdef BUFFER_SIZE
+char	*free_it(char **ptr, char **pt)
+{
+	if (ptr && *ptr)
+	{
+		free(*ptr);
+		*ptr = NULL;
+	}
+	if (pt && *pt)
+	{
+		free(*pt);
+		*pt = NULL;
+	}
+	return (NULL);
+}
 
 size_t	ft_strlen(const char *s)
 {
@@ -30,21 +45,16 @@ size_t	ft_strlen(const char *s)
 	return (i);
 }
 
-char	*ft_strchr(const char *s, int c)
+char	*ft_strchr(char *s, int c)
 {
 	int	i;
 
 	i = 0;
 	while (s[i] != '\0')
 	{
-		if (s[i] != (char)c)
-			i++;
-		else
+		if (s[i] == (char)c)
 			return ((char *)s + i);
-	}
-	if (c == '\0')
-	{
-		return ((char *)(s + i));
+		i++;
 	}
 	return (0);
 }
@@ -54,95 +64,95 @@ char	*ft_strdup(const char *s1, char X)
 	int		i;
 	char	*p;
 
-	i = 1;
-	if (s1[i] != '\0')
+	i = 0;
+	if (!s1)
+		return(ft_strdup("", '\0'));
+	while (s1[i] && s1[i] != X)
+		i++;
+	p = malloc(sizeof(char) * i + 2);
+	if (p == NULL)
+		return (NULL);
+	i = 0;
+	while (s1[i] != '\0' && s1[i] != X)
 	{
-		while (s1[i] && s1[i] != X)
-			i++;
-		p = malloc(sizeof(char) * i + 1);
-		if (p == NULL)
-			return (NULL);
-		i = 0;
-		while (s1[i] != '\0' && s1[i - 1] != X)
-		{
-			p[i] = s1[i];
-			i++;
-		}
-				p[i] = '\0';
+		p[i] = s1[i];
+		i++;
 	}
-	else
-	{
-		p = malloc(sizeof(char));
-		p[i] = '\0';
-	}
+	p[i] = s1[i]; 
+	p[++i] = '\0';
 	return ((char *)p);
 }
 
-char	*ft_strjoin(char const *s1, char const *s2)
+char	*ft_strjoin(char **s1, char *s2)
 {
 	char	*str;
 	size_t	i;
 	int		j;
 
 	j = 0;
-	i = 0;
-	if (!s1 || !s2)
+	i = -1;
+	if (!*s1 || !s2)
 		return (NULL);
-	str = malloc(ft_strlen(s1) + ft_strlen(s2) + 1);
+	str = malloc(ft_strlen(*s1) + ft_strlen(s2) + 1);
 	if (str == NULL)
 		return (NULL);
-	while (i < ft_strlen(s1) + ft_strlen(s2))
-	{
-		while (s1[i])
-		{
-			str[i] = s1[i];
-			i++;
-		}
-		while (s2[j])
-			str[i++] = s2[j++];
-	}
+	while (s1[0][++i])
+		str[i] = s1[0][i];
+	while (s2[j])
+		str[i++] = s2[j++];
 	str[i] = '\0';
+	free_it(s1, NULL);
 	return (str);
 }
 
-char *get_next_line(int fd)
+char	*ft_keep_going(char **saved)
 {
-	char *buf;
-	char *toret;
-	static char	*saved;
-	int	ret;
-	int	i;
+	char	*tmp;
+	char	*toret;
 
-	buf = (char *)malloc((BUFFER_SIZE + 1) * sizeof(char));
-	saved = (char *)malloc((BUFFER_SIZE + 1) * sizeof(char));
-	i = 0;
-	ret = read(fd, buf, BUFFER_SIZE);
-	buf[ret] = '\0';
-	while (buf[i] != '\0')
+	toret = ft_strdup(*saved, '\n');
+	if (ft_strchr(*saved, '\n'))
 	{
-		saved[i] = buf[i];
-		i++;
+		tmp = *saved;
+		*saved = ft_strdup(ft_strchr(*saved, '\n') + 1, '\0');
+		free_it(&tmp, NULL);
 	}
-	saved[i] = '\0';
-	while (ft_strchr(saved, '\n') == 0 && ret != 0)
-	{
-		free (buf);
-		buf = NULL;
-		read(fd, buf, BUFFER_SIZE);
-		saved = ft_strjoin(saved, buf);
-	}
-		toret = ft_strdup(saved, '\n');
-		//returns a string that's allocated in heap, it haave to be freed that's why i decided to make toret static as well so i can free it at the beggening if it points on smth.
-	saved = ft_strchr(saved, '\n');
-	saved++;
-	free(buf);
-	buf = NULL;
+	else
+		free_it(saved, NULL);
 	return (toret);
 }
-
-int main()
+char *get_next_line(int fd)
 {
-	int fd = open("random.txt", O_RDONLY);
-//	get_next_line(fd);
-	printf("**%s**",get_next_line(fd));
+	char 		*buf;
+	char 		*toret;
+	static char	*saved = NULL;
+	int			ret;
+
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
+	buf = (char *)malloc((BUFFER_SIZE + 1) * sizeof(char));
+	if (!saved)
+		saved = ft_strdup(saved, '\0');
+	ret = 1;
+	while (ft_strchr(saved, '\n') == 0 && ret != 0)
+	{
+		ret = read(fd, buf, BUFFER_SIZE);
+		if (ret < 0)
+			return(free_it(&saved, &buf));
+		buf[ret] = '\0';
+		saved = ft_strjoin(&saved, buf);
+	}
+	toret = ft_keep_going(&saved);
+	free_it(&buf, NULL);
+	if (*toret == '\0')
+		return(free_it(&toret, &saved));
+	return (toret);
 }
+#endif
+/*
+int	main(void)
+{
+	int	fd = open("files/41_no_nl", O_RDONLY);
+	printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
+}*/
