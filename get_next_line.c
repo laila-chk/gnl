@@ -6,20 +6,22 @@
 /*   By: lchokri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/10 15:40:19 by lchokri           #+#    #+#             */
-/*   Updated: 2021/12/16 19:33:53 by lchokri          ###   ########.fr       */
+/*   Updated: 2021/12/19 12:03:14 by lchokri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <unistd.h>
+/*#include <unistd.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/uio.h>
 #include <stdlib.h>
-#include <string.h>
-//#define BUFFER_SIZE 10 
+#include <string.h>*/
+
+#include "get_next_line.h"
 #ifdef BUFFER_SIZE
 
+/*
 char	*free_it(char **ptr, char **pt)
 {
 	if (ptr && *ptr)
@@ -104,7 +106,7 @@ char	*ft_strjoin(char **s1, char *s2)
 	free_it(s1, NULL);
 	return (str);
 }
-
+*/
 char	*ft_keep_going(char **saved)
 {
 	char	*tmp;
@@ -150,9 +152,19 @@ char *get_next_line(int fd)
 }
 #endif
 /*
-int	main(void)
+#include <stdio.h>
+#include <fcntl.h>
+
+int main()
 {
-	int	fd = open("files/41_no_nl", O_RDONLY);
+	int fd = open("tst.txt", O_RDONLY);
+	printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
 	printf("%s", get_next_line(fd));
 	printf("%s", get_next_line(fd));
 }*/
