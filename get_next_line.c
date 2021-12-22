@@ -6,7 +6,7 @@
 /*   By: lchokri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/10 15:40:19 by lchokri           #+#    #+#             */
-/*   Updated: 2021/12/19 12:03:14 by lchokri          ###   ########.fr       */
+/*   Updated: 2021/12/21 16:21:57 by lchokri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,10 +123,15 @@ char	*ft_keep_going(char **saved)
 		free_it(saved, NULL);
 	return (toret);
 }
-char *get_next_line(int fd)
+// recoding my func got me thinking:
+// 1 - i have to return null in case buff wasn't allocated.
+// 2- there's no need to cast in strdup's return.
+// 3- same for strchr, but ik hadik hit kant 3andi const f prototype so ye
+
+char	*get_next_line(int fd)
 {
-	char 		*buf;
-	char 		*toret;
+	char		*buf;
+	char		*toret;
 	static char	*saved = NULL;
 	int			ret;
 
@@ -140,14 +145,14 @@ char *get_next_line(int fd)
 	{
 		ret = read(fd, buf, BUFFER_SIZE);
 		if (ret < 0)
-			return(free_it(&saved, &buf));
+			return (free_it(&saved, &buf));
 		buf[ret] = '\0';
 		saved = ft_strjoin(&saved, buf);
 	}
 	toret = ft_keep_going(&saved);
 	free_it(&buf, NULL);
 	if (*toret == '\0')
-		return(free_it(&toret, &saved));
+		return (free_it(&toret, &saved));
 	return (toret);
 }
 #endif
@@ -157,14 +162,18 @@ char *get_next_line(int fd)
 
 int main()
 {
-	int fd = open("tst.txt", O_RDONLY);
-	printf("%s", get_next_line(fd));
-	printf("%s", get_next_line(fd));
-	printf("%s", get_next_line(fd));
-	printf("%s", get_next_line(fd));
-	printf("%s", get_next_line(fd));
-	printf("%s", get_next_line(fd));
-	printf("%s", get_next_line(fd));
-	printf("%s", get_next_line(fd));
-	printf("%s", get_next_line(fd));
+char *s;
+	int fd = open("get_next_line.c", O_RDONLY);
+	int i = 0;
+	while(i<12)
+	{
+		s = get_next_line(fd);
+		printf("%s", s);
+		free(s);
+		i++;
+	}
+	while(1)
+		continue ;
+	system("leaks ./a.out");
+	return (0);
 }*/
